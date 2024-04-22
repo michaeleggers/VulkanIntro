@@ -19,6 +19,10 @@ add_subdirectory(SimpleDemo)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 set_property(TARGET assimp          PROPERTY FOLDER "Libraries")
+set_property(TARGET glfw            PROPERTY FOLDER "Libraries")
+set_property(TARGET vkal            PROPERTY FOLDER "Libraries")
+
+
 
 set_property(TARGET SimpleDemo        PROPERTY FOLDER "Demo Programs")
 

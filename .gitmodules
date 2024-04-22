@@ -1,0 +1,3 @@
+[submodule "dependencies/vkal"]
+	path = dependencies/vkal
+	url = https://github.com/michaeleggers/vkal
