@@ -19,3 +19,7 @@ cmake ..
 ```
 
 This will build the default configuration for your system using GLFW as a windowing backend.
+
+# Flowchart of how Descriptor Sets are created and how the layout reflects the shader:
+
+![descriptor_set_creation_rasterizer_v9_no_twitter](https://github.com/michaeleggers/VulkanIntro/assets/11651836/2bac0135-c8f1-4549-800a-d46d9738b7be)
