@@ -122,6 +122,8 @@ Model create_model_from_file(char const* file)
 				// tinyobj::real_t green = attrib.colors[3*size_t(idx.vertex_index)+1];
 				// tinyobj::real_t blue  = attrib.colors[3*size_t(idx.vertex_index)+2];
 
+				model.vertices[vert_count].color = glm::vec4(1, 0, 0, 1);
+
 				tri.indices[v] = vert_count;
 
 				vert_count++;

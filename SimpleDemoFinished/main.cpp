@@ -215,7 +215,7 @@ static void update_camera(Camera& camera, float dt)
 	}
 
 	if (keys[GLFW_KEY_W]) {
-		camera.MoveForward(camera_dolly_speed * dt);
+		camera.MoveForward(camera_dolly_speed * dt);		
 	}
 	if (keys[GLFW_KEY_S]) {
 		camera.MoveForward(-camera_dolly_speed * dt);
@@ -236,26 +236,26 @@ static void update_camera(Camera& camera, float dt)
 
 void update_camera_mouse_look(Camera& camera, float dt)
 {
-	if (mouse_state.left_button_down || mouse_state.right_button_down) {
-		mouse_state.xpos_old = mouse_state.xpos;
-		mouse_state.ypos_old = mouse_state.ypos;
-		glfwGetCursorPos(window, &mouse_state.xpos, &mouse_state.ypos);
-		double dx = mouse_state.xpos - mouse_state.xpos_old;
-		double dy = mouse_state.ypos - mouse_state.ypos_old;
-		if (mouse_state.left_button_down) {
-			camera.RotateAroundSide(dy * MOUSE_SPEED);
-			camera.RotateAroundUp(-dx * MOUSE_SPEED);
-		}
-	}
-	else {
-		glfwGetCursorPos(window, &mouse_state.xpos, &mouse_state.ypos);
-		mouse_state.xpos_old = mouse_state.xpos;
-		mouse_state.ypos_old = mouse_state.ypos;
-	}
+    if (mouse_state.left_button_down || mouse_state.right_button_down) {
+        mouse_state.xpos_old = mouse_state.xpos;
+        mouse_state.ypos_old = mouse_state.ypos;
+        glfwGetCursorPos(window, &mouse_state.xpos, &mouse_state.ypos);
+        double dx = mouse_state.xpos - mouse_state.xpos_old;
+        double dy = mouse_state.ypos - mouse_state.ypos_old;
+        if (mouse_state.left_button_down) {
+            camera.RotateAroundSide(dy * MOUSE_SPEED);
+            camera.RotateAroundUp(-dx * MOUSE_SPEED);
+        }
+    }
+    else {
+        glfwGetCursorPos(window, &mouse_state.xpos, &mouse_state.ypos);
+        mouse_state.xpos_old = mouse_state.xpos;
+        mouse_state.ypos_old = mouse_state.ypos;
+    }
 }
 
 int main() {
-	window = init_window(800, 600, "Simple Demo");
+	window = init_window(800, 600, "Simple Demo Finished");
 
 	char* device_extensions[] = {
 		  VK_KHR_SWAPCHAIN_EXTENSION_NAME,
@@ -305,7 +305,7 @@ int main() {
 			0, // binding id ( matches with shader )
 			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
 			1, // number of resources with this layout binding
-			VK_SHADER_STAGE_VERTEX_BIT,
+			VK_SHADER_STAGE_FRAGMENT_BIT | VK_SHADER_STAGE_VERTEX_BIT,
 			0
 		}
 	};
@@ -313,19 +313,12 @@ int main() {
 	VkDescriptorSetLayout descriptor_set_layout_1 = vkal_create_descriptor_set_layout(set_layout, 1);
 
 	VkDescriptorSetLayout layouts[] = {
-		descriptor_set_layout_1 // set 0
-		//descriptor_set_layout_2 // set 1
-		// set 3
-		// usw
+		descriptor_set_layout_1
 	};
 	uint32_t descriptor_set_layout_count = sizeof(layouts) / sizeof(*layouts);
 
-	VkDescriptorSet* descriptor_set_knight = (VkDescriptorSet*)malloc(descriptor_set_layout_count * sizeof(VkDescriptorSet));
-	VkDescriptorSet* descriptor_set_plane = (VkDescriptorSet*)malloc(descriptor_set_layout_count * sizeof(VkDescriptorSet));
-
-	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, layouts, 1, &descriptor_set_knight);
-	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, layouts, 1, &descriptor_set_plane);
-
+	VkDescriptorSet* descriptor_set_1 = (VkDescriptorSet*)malloc(descriptor_set_layout_count * sizeof(VkDescriptorSet));
+	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, layouts, 1, &descriptor_set_1);
 
 	/* Vertex Input Assembly */
 	VkVertexInputBindingDescription vertex_input_bindings[] =
@@ -347,10 +340,10 @@ int main() {
 	// Shaders
 	uint8_t* vertex_byte_code = 0;
 	int vertex_code_size;
-	read_file("../../SimpleDemo/shaders/vert.spv", &vertex_byte_code, &vertex_code_size);
+	read_file("../../SimpleDemoFinished/shaders/vert.spv", &vertex_byte_code, &vertex_code_size);
 	uint8_t* fragment_byte_code = 0;
 	int fragment_code_size;
-	read_file("../../SimpleDemo/shaders/frag.spv", &fragment_byte_code, &fragment_code_size);
+	read_file("../../SimpleDemoFinished/shaders/frag.spv", &fragment_byte_code, &fragment_code_size);
 	ShaderStageSetup shader_setup = vkal_create_shaders(vertex_byte_code, vertex_code_size, fragment_byte_code, fragment_code_size);
 
 	VkPipelineLayout pipeline_layout = vkal_create_pipeline_layout(layouts, descriptor_set_layout_count, NULL, 0);
@@ -364,20 +357,20 @@ int main() {
 		vkal_info->render_pass, pipeline_layout);
 
 	// Uniform Buffers
-	UniformBuffer uniform_buffer_handle_knight = vkal_create_uniform_buffer(sizeof(ViewProjectionUBO), 1, 0);
-	UniformBuffer uniform_buffer_handle_plane = vkal_create_uniform_buffer(sizeof(ViewProjectionUBO), 1, 0);
+	UniformBuffer uniform_buffer_handle = vkal_create_uniform_buffer(sizeof(ViewProjectionUBO), 1, 0);
+	vkal_update_descriptor_set_uniform(descriptor_set_1[0], uniform_buffer_handle, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
 
-	vkal_update_descriptor_set_uniform(descriptor_set_knight[0], uniform_buffer_handle_knight, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
-	vkal_update_descriptor_set_uniform(descriptor_set_plane[0], uniform_buffer_handle_plane, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER);
+	// Initialize Uniform Buffer
+	vkal_update_uniform(&uniform_buffer_handle, &view_projection_data);
 
 	// Setup models
-	Model knight = create_model_from_file("../../assets/obj/pknight_large.obj");
-	knight.offset = vkal_vertex_buffer_add(knight.vertices, sizeof(Vertex), knight.vertex_count);
-	knight.model_matrix = glm::translate(glm::mat4(1), glm::vec3(30, 0, 0));
-
-	Model plane = create_model_from_file("../../assets/obj/plane.obj");
-	plane.offset = vkal_vertex_buffer_add(plane.vertices, sizeof(Vertex), plane.vertex_count);
-	plane.model_matrix = glm::mat4(1);
+	Model knight_model = create_model_from_file("../../assets/obj/pknight_large.obj");
+	knight_model.offset = vkal_vertex_buffer_add(knight_model.vertices, sizeof(Vertex), knight_model.vertex_count);
+	knight_model.model_matrix = glm::mat4(1);
+	
+	Model plane_model = create_model_from_file("../../assets/obj/plane.obj");
+	plane_model.offset = vkal_vertex_buffer_add(plane_model.vertices, sizeof(Vertex), plane_model.vertex_count);
+	plane_model.model_matrix = glm::mat4(1);
 
 	// Camera
 	Camera camera = Camera(glm::vec3(0, 0, 30));
@@ -410,7 +403,7 @@ int main() {
 		ImGui::NewFrame();
 
 		{
-			ImGui::Begin("Vulkan Demo");
+			ImGui::Begin("Simple Demo Finished");
 
 			ImGui::End();
 		}
@@ -420,17 +413,13 @@ int main() {
 
 		// Mouse update
 		if (!ImGui::IsMouseHoveringRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax()) && !ImGui::IsAnyItemActive()) {
-			update_camera_mouse_look(camera, dt * 1000.0f);
+			update_camera_mouse_look(camera, dt*1000.0f);
 		}
 
-		view_projection_data.projection = adjust_y_for_vulkan_ndc * glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 1000.0f);
-		view_projection_data.view = glm::lookAt(camera.m_Pos, camera.m_Center, camera.m_Up);		
-
-		update_modelMatrix(knight.model_matrix, float(dt * 1000.0f));
-		view_projection_data.model = knight.model_matrix;
-		vkal_update_uniform(&uniform_buffer_handle_knight, &view_projection_data);
-		view_projection_data.model = plane.model_matrix;
-		vkal_update_uniform(&uniform_buffer_handle_plane, &view_projection_data);
+		view_projection_data.model = knight_model.model_matrix;
+		view_projection_data.projection = adjust_y_for_vulkan_ndc* glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 1000.0f);
+		view_projection_data.view = glm::lookAt(camera.m_Pos, camera.m_Center, camera.m_Up);
+		vkal_update_uniform(&uniform_buffer_handle, &view_projection_data);
 
 		{
 			uint32_t image_id = vkal_get_image();
@@ -446,15 +435,17 @@ int main() {
 				(float)width, (float)height);
 			vkal_set_clear_color({ 0.6f, 0.6f, 0.6f, 1.0f });
 
-			// Draw models	
-			
-			vkal_bind_descriptor_set(image_id, &descriptor_set_knight[0], pipeline_layout);
-			vkal_draw(image_id, graphics_pipeline, knight.offset, knight.vertex_count);
-			
-			vkal_bind_descriptor_set(image_id, &descriptor_set_plane[0], pipeline_layout);
-			vkal_draw(image_id, graphics_pipeline, plane.offset, plane.vertex_count);
-		
-		
+			vkal_bind_descriptor_set(image_id, &descriptor_set_1[0], pipeline_layout);
+
+			// TODO: Draw models
+			vkal_draw(image_id, graphics_pipeline, knight_model.offset, knight_model.vertex_count);
+
+			plane_model.pos = glm::vec3(50.0f, 0.0f, 0.0f);
+			plane_model.model_matrix = glm::translate(glm::mat4(1), plane_model.pos);
+			view_projection_data.model = plane_model.model_matrix;
+			vkal_update_uniform(&uniform_buffer_handle, &view_projection_data);
+			vkal_draw(image_id, graphics_pipeline, plane_model.offset, plane_model.vertex_count);
+
 			// Rendering ImGUI
 			ImGui::Render();
 			ImDrawData* draw_data = ImGui::GetDrawData();
@@ -485,8 +476,7 @@ int main() {
 
 	deinit_imgui(vkal_info);
 
-	free(descriptor_set_knight);
-	free(descriptor_set_plane);
+	free(descriptor_set_1);
 
 	vkal_cleanup();
 
