@@ -1,7 +1,7 @@
 
 cmake_minimum_required(VERSION 3.24)
 
-project(VulkanRahmenprogrammLsgDEV VERSION 1.0)
+project(VulkanIntro VERSION 1.0)
 
 find_package(Vulkan REQUIRED)
 
@@ -13,6 +13,9 @@ message("Cmake Vulkan Module Path: " ${Vulkan_INCLUDE_DIRS})
 message("Cmake Vulkan Include Dir: " ${Vulkan_INCLUDE_DIR})
 
 add_subdirectory(dependencies/vkal)
+add_subdirectory(dependencies/tinyobjloader)
+option(ASSIMP_BUILD_ZLIB "Build the static library" ON)
+add_subdirectory(dependencies/assimp)
 
 add_subdirectory(SimpleDemo)
 

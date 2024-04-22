@@ -18,8 +18,6 @@ add_executable(SimpleDemo
     ../dependencies/utils/camera.h
     ../dependencies/vkal/src/examples/utils/platform.cpp
     ../dependencies/vkal/src/examples/utils/platform.h
-    ../dependencies/modelloader/Model.cpp
-    ../dependencies/modelloader/Model.h
     ../dependencies/imgui/backends/imgui_impl_glfw.cpp
     ../dependencies/imgui/backends/imgui_impl_glfw.h
     ../dependencies/imgui/backends/imgui_impl_vulkan.cpp
@@ -37,11 +35,14 @@ set (VULKAN_INCLUDE ${Vulkan_INCLUDE_DIR})
 target_include_directories(SimpleDemo PUBLIC
     ../dependencies
     ../dependencies/imgui    
+    ../dependencies/glm
+    ../dependencies/assimp/include
     ${Vulkan_INCLUDE_DIR}
 )
 
 target_link_libraries(SimpleDemo
     PUBLIC vkal
+    PUBLIC assimp
 )
 
 set_property(TARGET SimpleDemo PROPERTY CXX_STANDARD 11)
