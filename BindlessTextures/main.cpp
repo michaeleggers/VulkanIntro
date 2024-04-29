@@ -362,14 +362,14 @@ int main() {
 	};
 	uint32_t descriptor_set_layout_count = sizeof(layouts) / sizeof(*layouts);
 
-	VkDescriptorSet* descriptor_set_knight = (VkDescriptorSet*)malloc(2 * sizeof(VkDescriptorSet));
-	VkDescriptorSet* descriptor_set_plane = (VkDescriptorSet*)malloc(2 * sizeof(VkDescriptorSet));
-	VkDescriptorSet* descriptor_set_textures = (VkDescriptorSet*)malloc(1 * sizeof(VkDescriptorSet));
+	VkDescriptorSet* descriptor_set_knight = (VkDescriptorSet*)malloc(sizeof(VkDescriptorSet));
+	VkDescriptorSet* descriptor_set_plane = (VkDescriptorSet*)malloc(sizeof(VkDescriptorSet));
+	VkDescriptorSet* descriptor_set_textures = (VkDescriptorSet*)malloc(sizeof(VkDescriptorSet));
 
 	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, layouts, 1, &descriptor_set_knight);
 	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, layouts, 1, &descriptor_set_plane);	
 	vkal_allocate_descriptor_sets(vkal_info->default_descriptor_pool, &layouts[1], 1, &descriptor_set_textures);
-
+	
 	/* Vertex Input Assembly */
 	VkVertexInputBindingDescription vertex_input_bindings[] =
 	{
@@ -428,7 +428,7 @@ int main() {
 
 	Model plane = create_model_from_file("../../assets/obj/plane.obj");
 	plane.offset = vkal_vertex_buffer_add(plane.vertices, sizeof(Vertex), plane.vertex_count);
-	plane.model_matrix = glm::mat4(1);
+	plane.model_matrix = glm::scale(glm::mat4(1), glm::vec3(10.0f, 1.0f, 10.0f));
 
 	// Load texture for the models
 	Image knight_image = load_image("../../assets/textures/knight.png");
@@ -440,19 +440,19 @@ int main() {
 		VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER);
 
 	VkalTexture plane_texture = vkal_create_texture(0, plane_image.data, plane_image.width, plane_image.height, 4, 0,
-		VK_IMAGE_VIEW_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM, 0, 1, 0, 1, VK_FILTER_LINEAR, VK_FILTER_LINEAR,
+		VK_IMAGE_VIEW_TYPE_2D, VK_FORMAT_R8G8B8A8_UNORM, 0, 1, 0, 1, VK_FILTER_NEAREST, VK_FILTER_NEAREST,
 		VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER, VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER);
 
 	// Update texture descriptor set array
 	vkal_update_descriptor_set_texturearray(
 		descriptor_set_textures[0],
 		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		0,
+		0, // Texture ID (the id that we use in the shader to fetch the texture from the array)
 		knight_texture);
 	vkal_update_descriptor_set_texturearray(
 		descriptor_set_textures[0],
 		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-		1,
+		1, // Texture ID
 		plane_texture);
 
 	// Camera
@@ -525,6 +525,8 @@ int main() {
 
 			// Draw models	
 		
+			// Bind the texture descriptor-array.
+
 			vkal_bind_descriptor_sets_from_to(image_id, descriptor_set_textures, 1, 1, pipeline_layout);
 
 			uint32_t id1 = 0;
