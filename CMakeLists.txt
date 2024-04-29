@@ -18,7 +18,8 @@ option(ASSIMP_BUILD_ZLIB "Build the static library" ON)
 add_subdirectory(dependencies/assimp)
 
 add_subdirectory(SimpleDemo)
-
+add_subdirectory(PushConstants)
+add_subdirectory(BindlessTextures)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
@@ -27,8 +28,9 @@ set_property(TARGET glfw            PROPERTY FOLDER "Libraries")
 set_property(TARGET vkal            PROPERTY FOLDER "Libraries")
 
 
-
 set_property(TARGET SimpleDemo          PROPERTY FOLDER "Demo Programs")
+set_property(TARGET PushConstants       PROPERTY FOLDER "Demo Programs")
+set_property(TARGET BindlessTextures    PROPERTY FOLDER "Demo Programs")
 
 
 
