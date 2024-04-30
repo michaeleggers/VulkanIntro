@@ -26,12 +26,17 @@ Shows how to set two descriptor sets, one for each model, in order to update the
 
 ![descriptor_set_creation_rasterizer_v9_no_twitter](https://github.com/michaeleggers/VulkanIntro/assets/11651836/2bac0135-c8f1-4549-800a-d46d9738b7be)
 
+https://github.com/michaeleggers/VulkanIntro/tree/main/SimpleDemo
+
 # PushConstants
 
 Like the SimpleDemo example, but uses Push Constants to update the models' model matrices.
 
-# Bindless Textures
+https://github.com/michaeleggers/VulkanIntro/tree/main/PushConstants
+
+# BindlessTextures
 
 Uses a descriptor array for the textures and a push constant to upload each model's texture ID to
 index into the texture array in the fragment shader.
 
+https://github.com/michaeleggers/VulkanIntro/tree/main/BindlessTextures
